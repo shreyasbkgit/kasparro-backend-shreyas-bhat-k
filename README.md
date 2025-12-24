@@ -222,6 +222,7 @@ docker-compose logs postgres
 **Built with clarity, correctness, and production discipline.**
 
 ## Docker Compose Configuration
+donwload this and run docker compose build 
 
 ```yaml
 services:
@@ -253,5 +254,7 @@ services:
 
 volumes:
   pgdata:
+
+  
 
 
