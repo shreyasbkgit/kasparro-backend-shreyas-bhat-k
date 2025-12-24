@@ -8,7 +8,30 @@
 This project implements a **Dockerized ETL + API backend** for cryptocurrency market data as part of the Kasparro backend assignment.
 The system supports **scheduled ETL ingestion**, **manual ETL execution**, **persistent storage**, and **public API access**, and is fully deployed on **AWS EC2**.
 
+
 ---
+
+## 📦 What This System Does
+
+### Data Sources
+
+The ETL pipeline ingests and consolidates cryptocurrency market data from **three distinct data sources**:
+
+* **CoinGecko (BTC historical data)**
+  Historical Bitcoin price and market data ingested from CSV files.
+
+* **CoinGecko (ETH historical data)**
+  Historical Ethereum price and market data ingested from CSV files.
+
+* **CoinPaprika (Global market snapshot)**
+  Real-time global cryptocurrency market data ingested via REST API.
+
+Each source is:
+
+* Tracked independently
+* Incrementally ingested
+* Persisted with source attribution for filtering and analytics
+
 
 ## 🚀 Deployed Backend (AWS)
 
