@@ -316,13 +316,7 @@ pytest tests/
 
 ---
 
-If you want, I can now:
 
-* Shrink this to **one-page submission format**
-* Add **OpenAPI-style param docs**
-* Match wording exactly to **Kasparro grading criteria**
-
-Just tell me.
 
 
   
