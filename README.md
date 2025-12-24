@@ -221,8 +221,15 @@ docker-compose logs postgres
 
 **Built with clarity, correctness, and production discipline.**
 
+Here’s the **clean, polished Markdown version** exactly in the style you’re aiming for. You can paste this **as-is** into `README.md`.
+
+---
+
+**Built with clarity, correctness, and production discipline.**
+
 ## Docker Compose Configuration
-donwload this and run docker compose build 
+
+Download the following `docker-compose.yml` file and run the service using Docker Compose.
 
 ```yaml
 services:
@@ -254,6 +261,26 @@ services:
 
 volumes:
   pgdata:
+```
+
+### Expected `.env` file (place in the same directory)
+
+```env
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=postgres
+
+DATABASE_URL=postgresql+psycopg2://postgres:postgres@postgres:5432/postgres
+```
+
+### Build and Run
+
+```bash
+docker compose up --build
+```
+
+
+
 
   
 
