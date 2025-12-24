@@ -1,16 +1,7 @@
 ---
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/97f6b8ed-4613-4c16-842a-f2a806cf6887" />
 ---
-Done 👍 — below is the **final README version** with:
 
-* ❌ **SSH section removed**
-* ✅ **Docker Compose (`docker-compose.yml`) kept**
-* ✅ **Filtering, pagination, querying details kept**
-* ✅ **Tone, structure, and content preserved**
-
-You can **paste this directly into `README.md`**.
-
----
 
 # Kasparro Backend – ETL & API System
 
