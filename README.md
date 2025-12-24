@@ -221,7 +221,9 @@ docker-compose logs postgres
 
 **Built with clarity, correctness, and production discipline.**
 
-Docker-compose.yml
+## Docker Compose Configuration
+
+```yaml
 services:
   postgres:
     image: postgres:16
@@ -251,4 +253,5 @@ services:
 
 volumes:
   pgdata:
+
 
