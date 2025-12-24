@@ -1,0 +1,2 @@
+*/30 * * * * cd /app && /usr/local/bin/python services/run_etl.py >> /var/log/etl.log 2>&1
+

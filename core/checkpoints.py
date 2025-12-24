@@ -1,15 +1,15 @@
-from sqlalchemy import Column, String, DateTime
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.ext.declarative import declarative_base
-from datetime import datetime
-import uuid
+from sqlalchemy import Column, String, DateTime, Integer
+from sqlalchemy.orm import declarative_base
+from sqlalchemy.sql import func
 
 BaseCheckpoint = declarative_base()
+
 
 class IngestionCheckpoint(BaseCheckpoint):
     __tablename__ = "ingestion_checkpoints"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    source = Column(String, unique=True)
+    id = Column(Integer, primary_key=True)
+    source = Column(String, unique=True, index=True)
     last_ingested_at = Column(DateTime)
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 

@@ -1,41 +1,38 @@
-from sqlalchemy import Column, String, Float, DateTime
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.ext.declarative import declarative_base
-from datetime import datetime
-import uuid
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    Float,
+    DateTime,
+    Text,
+    func,
+)
+from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
 
-class RawCoinPaprika(Base):
-    __tablename__ = "raw_coinpaprika"
-
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    payload = Column(String)
-    ingested_at = Column(DateTime, default=datetime.utcnow)
-
-
-class RawCSVPrices(Base):
-    __tablename__ = "raw_csv_prices"
-
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    payload = Column(String)
-    ingested_at = Column(DateTime, default=datetime.utcnow)
-
 
 class Asset(Base):
-    """
-    Unified observation table.
-    Can represent:
-    - Asset-level observations (e.g., BTC)
-    - Market-level observations (GLOBAL MARKET)
-    """
     __tablename__ = "assets"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    symbol = Column(String)
+    id = Column(Integer, primary_key=True, index=True)
+    symbol = Column(String, index=True)
     name = Column(String)
-    price_usd = Column(Float, nullable=True)
-    market_cap = Column(Float, nullable=True)
-    source = Column(String)
-    ingested_at = Column(DateTime, default=datetime.utcnow)
+    price_usd = Column(Float)
+    market_cap = Column(Float)
+    source = Column(String, index=True)
+    ingested_at = Column(DateTime, index=True)
+
+
+class ETLRun(Base):
+    __tablename__ = "etl_runs"
+
+    id = Column(Integer, primary_key=True)
+    source = Column(String, index=True)
+    status = Column(String)  # success / failure
+    records_processed = Column(Integer, default=0)
+    duration_ms = Column(Integer)
+    started_at = Column(DateTime, server_default=func.now())
+    finished_at = Column(DateTime)
+    error_message = Column(Text)
 
