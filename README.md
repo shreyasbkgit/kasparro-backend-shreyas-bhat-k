@@ -1,18 +1,14 @@
 ---
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/97f6b8ed-4613-4c16-842a-f2a806cf6887" />
 ---
+Done 👍 — below is the **final README version** with:
 
-Docker HUB image:https://hub.docker.com/r/shreyasdocmysqli/kasparro-backend
+* ❌ **SSH section removed**
+* ✅ **Docker Compose (`docker-compose.yml`) kept**
+* ✅ **Filtering, pagination, querying details kept**
+* ✅ **Tone, structure, and content preserved**
 
----
-
-Git:https://github.com/shreyasbkgit/kasparro-backend-shreyas-bhat-k/
-
----
-to run the process
-
-docker-compose exec api python services/run_etl.py
-
+You can **paste this directly into `README.md`**.
 
 ---
 
@@ -27,7 +23,7 @@ The system supports **scheduled ETL ingestion**, **manual ETL execution**, **per
 
 **Public API Base URL (AWS EC2):**
 
-```
+```text
 http://13.204.43.83:8000
 ```
 
@@ -35,23 +31,21 @@ http://13.204.43.83:8000
 
 * **Health Check**
 
-  ```
-  http://13.204.43.83:8000/health
+  ```text
+  /health
   ```
 
 * **Ingested Market Data**
 
-  ```
-  http://13.204.43.83:8000/data
+  ```text
+  /data
   ```
 
 * **ETL Run Statistics**
 
+  ```text
+  /stats
   ```
-  http://13.204.43.83:8000/stats
-  ```
-
-> ✅ Deployment is live on AWS EC2 (bonus criteria satisfied)
 
 ---
 
@@ -59,21 +53,21 @@ http://13.204.43.83:8000
 
 ### Data Sources
 
-* **CoinGecko** (BTC, ETH historical CSV ingestion)
-* **CoinPaprika** (Global crypto market snapshot via API)
+* **CoinGecko** – BTC, ETH historical market data (CSV-based ingestion)
+* **CoinPaprika** – Global crypto market snapshot (REST API)
 
 ### ETL Features
 
 * Incremental ingestion
 * Persistent checkpoints
-* ETL run tracking (`success`, `failure`, duration, record count)
-* Recovery-safe (can re-run ETL after restart)
+* ETL run tracking (success / failure / duration / record count)
+* Recovery-safe (ETL can be re-run after restart)
 * Scheduled ETL using **cron inside Docker**
 
 ### API Features
 
 * Health monitoring (`/health`)
-* Paginated & filtered data access (`/data`)
+* Filtered & paginated market data access (`/data`)
 * ETL history & metrics (`/stats`)
 * PostgreSQL-backed persistence
 
@@ -83,10 +77,62 @@ http://13.204.43.83:8000
 
 The system runs using **Docker Compose** with two services:
 
-* **api** – FastAPI + ETL + cron scheduler
+* **api** – FastAPI + ETL engine + cron scheduler
 * **postgres** – PostgreSQL database with persistent volume
 
 Everything starts automatically via Docker.
+
+---
+
+## 🐳 Docker Compose Configuration
+
+Download the following `docker-compose.yml` file and run the system using Docker Compose.
+
+```yaml
+services:
+  postgres:
+    image: postgres:16
+    container_name: kasparro-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    image: shreyasdocmysqli/kasparro-backend:latest
+    container_name: kasparro-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+
+volumes:
+  pgdata:
+```
+
+---
+
+### Expected `.env` File
+
+Create a `.env` file in the same directory as `docker-compose.yml`.
+
+```env
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=postgres
+
+DATABASE_URL=postgresql+psycopg2://postgres:postgres@postgres:5432/postgres
+```
 
 ---
 
@@ -128,6 +174,100 @@ curl http://localhost:8000/data
 
 ---
 
+## 🔍 Data Access: Filtering, Pagination & Querying
+
+The `/data` endpoint supports **server-side filtering and pagination**, enabling efficient querying of large historical datasets.
+
+### Endpoint
+
+```http
+GET /data
+```
+
+---
+
+### Pagination Parameters
+
+| Parameter   | Type | Default | Description           |
+| ----------- | ---- | ------- | --------------------- |
+| `page`      | int  | `1`     | Page number (1-based) |
+| `page_size` | int  | `50`    | Records per page      |
+
+```bash
+curl "http://localhost:8000/data?page=2&page_size=25"
+```
+
+---
+
+### Source Filtering
+
+| Parameter | Type   | Description                |
+| --------- | ------ | -------------------------- |
+| `source`  | string | Filter by ingestion source |
+
+Valid values:
+
+* `coingecko`
+* `coinpaprika`
+
+```bash
+curl "http://localhost:8000/data?source=coingecko"
+```
+
+---
+
+### Asset Filtering
+
+| Parameter    | Type   | Description                             |
+| ------------ | ------ | --------------------------------------- |
+| `symbol`     | string | Filter by crypto symbol (e.g. BTC, ETH) |
+| `asset_name` | string | Case-insensitive asset name filter      |
+
+```bash
+curl "http://localhost:8000/data?symbol=BTC"
+```
+
+---
+
+### Date Range Filtering
+
+| Parameter    | Type   | Format       | Description            |
+| ------------ | ------ | ------------ | ---------------------- |
+| `start_date` | string | `YYYY-MM-DD` | Start date (inclusive) |
+| `end_date`   | string | `YYYY-MM-DD` | End date (inclusive)   |
+
+```bash
+curl "http://localhost:8000/data?start_date=2023-01-01&end_date=2023-06-30"
+```
+
+---
+
+### Combined Filters
+
+```bash
+curl "http://localhost:8000/data?source=coingecko&symbol=BTC&page=1&page_size=10"
+```
+
+---
+
+## 📊 ETL Statistics Endpoint
+
+### Endpoint
+
+```http
+GET /stats
+```
+
+### Metrics Provided
+
+* Execution timestamp
+* Status (`success` / `failure`)
+* Records ingested
+* Execution duration
+* Error message (if applicable)
+
+---
+
 ## 🧪 Automated Tests
 
 The project includes a full automated test suite using **pytest**.
@@ -135,151 +275,40 @@ The project includes a full automated test suite using **pytest**.
 ### Covered Areas
 
 * API health endpoint
-* Data pagination
+* Pagination correctness
 * Source-based filtering
 * ETL side effects
 * ETL statistics
 * Database connectivity
 
-### Run Tests
-
 ```bash
 pytest tests/
 ```
 
-✅ All tests pass successfully.
-
 ---
 
-## ☁️ AWS Deployment Details
+## 🧠 Design Guarantees
 
-* **Platform:** AWS EC2 (Ubuntu)
-* **Runtime:** Docker + Docker Compose
-* **Public Access:** Port 8000 open for API
-* **ETL Scheduling:** Cron inside API container
-* **Logs:** Accessible via Docker logs
-* **Database:** PostgreSQL with Docker volume
-
----
-
-## 🔐 Evaluator: SSH Access & Self-Run Instructions
-
-### SSH into EC2
-
-```bash
-ssh -i <your-key>.pem ubuntu@13.204.43.83
-```
-
-### Navigate to Project
-
-```bash
-cd kasparro-backend-shreyas-bhat-k
-```
-
-### Start Services
-
-```bash
-docker-compose up --build -d
-```
-
-### Trigger ETL (Optional)
-
-```bash
-docker-compose exec api python services/run_etl.py
-```
-
-### View Logs
-
-```bash
-docker-compose logs api
-docker-compose logs postgres
-```
-
----
-
-## ✅ Assignment Checklist
-
-✔ Docker image
-✔ Docker Compose setup
-✔ Automated ETL
-✔ Public API endpoints
-✔ AWS cloud deployment
-✔ Cron-based scheduling
-✔ Persistent storage
-✔ Full test suite
-✔ Live smoke test
-
----
-
-## 🧠 Notes
-
-* No external API authentication is required for this assignment.
-* All secrets and configuration are handled via environment variables.
-* Evaluators can verify everything **without modifying code**.
+* Incremental & idempotent ETL
+* Restart-safe ingestion
+* Pagination enforced at database level
+* No full-table API scans
+* Stateless API layer
+* Production-safe defaults
 
 ---
 
 **Built with clarity, correctness, and production discipline.**
 
-Here’s the **clean, polished Markdown version** exactly in the style you’re aiming for. You can paste this **as-is** into `README.md`.
-
 ---
 
-**Built with clarity, correctness, and production discipline.**
+If you want, I can now:
 
-## Docker Compose Configuration
+* Shrink this to **one-page submission format**
+* Add **OpenAPI-style param docs**
+* Match wording exactly to **Kasparro grading criteria**
 
-Download the following `docker-compose.yml` file and run the service using Docker Compose.
-
-```yaml
-services:
-  postgres:
-    image: postgres:16
-    container_name: kasparro-postgres
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-  api:
-    image: shreyasdocmysqli/kasparro-backend:latest
-    container_name: kasparro-api
-    depends_on:
-      postgres:
-        condition: service_healthy
-    env_file:
-      - .env
-    ports:
-      - "8000:8000"
-
-volumes:
-  pgdata:
-```
-
-### Expected `.env` file (place in the same directory)
-
-```env
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=postgres
-POSTGRES_DB=postgres
-
-DATABASE_URL=postgresql+psycopg2://postgres:postgres@postgres:5432/postgres
-```
-
-### Build and Run
-
-```bash
-docker compose up --build
-```
-
-
+Just tell me.
 
 
   
