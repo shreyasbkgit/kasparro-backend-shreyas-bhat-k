@@ -1,10 +1,18 @@
-
+---
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/97f6b8ed-4613-4c16-842a-f2a806cf6887" />
-Docker HUB image:https://hub.docker.com/r/shreyasdocmysqli/kasparro-backend
-Git:https://github.com/shreyasbkgit/kasparro-backend-shreyas-bhat-k/
-Below is a **clean, complete, evaluator-ready `README.md`** that accurately reflects **everything you built and demonstrated**, without adding anything new or changing behavior.
+---
 
-You can **copy-paste this directly** into `README.md`.
+Docker HUB image:https://hub.docker.com/r/shreyasdocmysqli/kasparro-backend
+
+---
+
+Git:https://github.com/shreyasbkgit/kasparro-backend-shreyas-bhat-k/
+
+---
+to run the process
+
+docker-compose exec api python services/run_etl.py
+
 
 ---
 
